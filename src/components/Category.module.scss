@@ -1,0 +1,18 @@
+.category {
+  margin: 10px 0px;
+  .organisationWrapper {
+    display: flex;
+    flex-direction: column;
+
+    .OrgName {
+      color: var(--text100);
+    }
+    .tags {
+      margin-top: 10px;
+      display: flex;
+      > div {
+        margin: 5px 5px 5px 0px;
+      }
+    }
+  }
+}
