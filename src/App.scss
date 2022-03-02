@@ -86,6 +86,9 @@
     display: flex;
     align-items: center;
     max-width: 700px;
+    > div {
+      margin: 5px;
+    }
   }
   .categoryWrapper {
     display: flex;

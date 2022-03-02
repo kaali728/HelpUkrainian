@@ -4,9 +4,10 @@ import "@findnlink/ui/dist/style.css";
 import { Button, Modal, Input, Text, Spacer, DropDown } from "@findnlink/ui";
 import Category from "./components/Category";
 import Footer from "./components/Footer";
-import data from "./data.json";
+import { categories } from "./categories";
 
 function App() {
+  const [data, setData] = useState(categories);
   const [open, setOpen] = useState({ helper: false, contact: false });
   const [orte, setOrte] = useState([]);
   const [selectedOrt, setSelectedOrt] = useState(null);
@@ -14,7 +15,7 @@ function App() {
   useEffect(() => {
     let _orte = [];
 
-    data.category.map((cat) => {
+    categories.map((cat) => {
       cat.organisations.map((org) => {
         if (_orte.indexOf(org.ort) === -1) {
           _orte.push(org.ort);
@@ -25,16 +26,33 @@ function App() {
     _orte = _orte.map((ort) => {
       return { children: ort };
     });
-
     setOrte(_orte);
-  }, [data]);
+  }, [categories]);
+
+  useEffect(() => {
+    console.log(categories);
+    if (selectedOrt !== null) {
+      let _data = [];
+      categories.map((cat) => {
+        let _cat = cat;
+        _cat.organisations = _cat.organisations.filter((org) => {
+          if (org.ort === orte[selectedOrt].children) {
+            return org;
+          }
+        });
+        _data.push(_cat);
+      });
+      console.log(_data);
+      setData(_data);
+    }
+  }, [selectedOrt]);
 
   return (
     <div className="wrapper">
       <span className="logo">
         <Button primary>
           <a
-            href="https://twitter.com/intent/tweet?text=%C3%9Cbersicht%20der%20Hilfsorganisationen%20f%C3%BCr%20ukrainische%20Fl%C3%BCchtlinge"
+            href="https://twitter.com/intent/tweet?text=Fl%C3%BCchtlinge%20sind%20laut%20unserem%20aktuellen%20Kenntnisstand%20auf%20der%20Suche%20nach%20Sicherheit%20und%20Frieden.%20Egal%2C%20ob%20du%20Sachspenden%2C%20Zeit%20oder%20aber%20auch%0Aein%20vorl%C3%A4ufiges%20Zuhause%20anbieten%20kannst%2C%20Deutschland%20hilft%20listet%20passende%20Ansprechpartner%3Ainnen%20auf.%20%0A%0Ahttps%3A%2F%2Fdehilft.de"
             target="_blank"
             style={{
               textDecoration: "none",
@@ -90,16 +108,17 @@ function App() {
       </div>
 
       <div className="CityWrapper">
-        <Text scale="l">Deine Stadt</Text>
+        <Text scale="l">Wähle deinen Standort: </Text>
         <DropDown
           items={orte}
           selected={selectedOrt}
           setSelected={setSelectedOrt}
+          placeholder="Alle"
         />
       </div>
 
       <div className="categoryWrapper">
-        {data.category.map((cat, i) => (
+        {data.map((cat, i) => (
           <Category
             name={cat.name}
             organisationen={cat.organisations}
@@ -107,6 +126,8 @@ function App() {
           />
         ))}
       </div>
+
+      <Footer />
 
       <Modal
         open={open.contact}
