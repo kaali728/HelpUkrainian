@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./App.scss";
 import "@findnlink/ui/dist/style.css";
 import { Button, Modal, Input, Text, Spacer, DropDown } from "@findnlink/ui";
@@ -10,49 +10,92 @@ function App() {
   const [data, setData] = useState(categories);
   const [open, setOpen] = useState({ helper: false, contact: false });
   const [orte, setOrte] = useState([]);
+  const [cats, setCats] = useState([]);
   const [selectedOrt, setSelectedOrt] = useState(null);
+  const [selectedCat, setSelectedCat] = useState(null);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     let _orte = [];
-
+    let _cats = [];
     categories.map((cat) => {
+      if (_cats.indexOf(cat.name) === -1) {
+        _cats.push(cat.name);
+      }
       cat.organisations.map((org) => {
-        if (_orte.indexOf(org.ort) === -1) {
+        if (_orte.indexOf(org.ort) === -1 && org.ort.length > 0) {
           _orte.push(org.ort);
         }
       });
     });
 
-    _orte = _orte.map((ort) => {
-      return { children: ort };
+    _orte = _orte
+      .sort((a, b) => a.localeCompare(b))
+      .map((ort) => {
+        return { children: ort };
+      });
+    _cats = _cats.map((c) => {
+      return { children: c };
     });
+    _cats.unshift({ children: "Alle" });
+
     setOrte(_orte);
+    setCats(_cats);
   }, [categories]);
 
   useEffect(() => {
-    console.log(categories);
     if (selectedOrt !== null) {
       let _data = [];
-      categories.map((cat) => {
-        let _cat = cat;
-        _cat.organisations = _cat.organisations.filter((org) => {
-          if (org.ort === orte[selectedOrt].children) {
-            return org;
-          }
+      if (orte[selectedOrt].children !== "Deutschland") {
+        categories.map((cat) => {
+          let _cat = Object.assign({}, cat);
+          _cat.organisations = _cat.organisations.filter((org) => {
+            if (org.ort === orte[selectedOrt].children) {
+              return org;
+            }
+          });
+          _data.push(_cat);
         });
-        _data.push(_cat);
-      });
-      console.log(_data);
+        /* if (selectedCat !== null) {
+          _data = _data.filter((cat) => {
+            if (cat.name === cats[selectedCat].children) {
+              return cat;
+            }
+          });
+        } */
+      }
+      if (orte[selectedOrt].children === "Deutschland") {
+        _data = categories;
+      }
+      setSelectedCat(null);
       setData(_data);
     }
   }, [selectedOrt]);
+
+  useEffect(() => {
+    if (selectedCat !== null) {
+      let _data = [];
+      if (cats[selectedCat].children !== "Alle") {
+        _data = categories.filter((cat) => {
+          if (cat.name === cats[selectedCat].children) {
+            return cat;
+          }
+        });
+      }
+      if (cats[selectedCat].children === "Alle") {
+        _data = categories;
+      }
+      setSelectedOrt(null);
+      setData(_data);
+    }
+  }, [selectedCat]);
 
   return (
     <div className="wrapper">
       <span className="logo">
         <Button primary>
           <a
-            href="https://twitter.com/intent/tweet?text=Fl%C3%BCchtlinge%20sind%20laut%20unserem%20aktuellen%20Kenntnisstand%20auf%20der%20Suche%20nach%20Sicherheit%20und%20Frieden.%20Egal%2C%20ob%20du%20Sachspenden%2C%20Zeit%20oder%20aber%20auch%0Aein%20vorl%C3%A4ufiges%20Zuhause%20anbieten%20kannst%2C%20Deutschland%20hilft%20listet%20passende%20Ansprechpartner%3Ainnen%20auf.%20%0A%0Ahttps%3A%2F%2Fdehilft.de"
+            href="https://twitter.com/intent/tweet?text=%C3%9Cber%20600.000%20Fl%C3%BCchtlinge%20sind%20laut%20unserem%20aktuellen%20Kenntnisstand%20auf%20der%20Suche%20nach%20Sicherheit%20und%20Frieden.%20Egal%2C%20ob%20du%20Sachspenden%2C%20Zeit%20oder%20aber%20auch%0Aein%20vorl%C3%A4ufiges%20Zuhause%20anbieten%20kannst%2C%20Deutschland%20hilft%20listet%20passende%20Ansprechpartner%3Ainnen%20auf.%20%0A%0Ahttps%3A%2F%2Fdehilft.de"
             target="_blank"
             style={{
               textDecoration: "none",
@@ -100,21 +143,35 @@ function App() {
             primary
             scale="l"
             style={{ margin: "5px" }}
-            onClick={() => setOpen((prev) => ({ ...prev, helper: true }))}
+            onClick={() => {
+              setOpen((prev) => ({ ...prev, helper: true }));
+              scrollRef.current.scrollIntoView({ behavior: "smooth" });
+            }}
           >
             Helfen
           </Button>
         </div>
       </div>
+      <div className="dropdownWrapper">
+        <div className="cityWrapper" ref={scrollRef}>
+          <Text scale="l">Wähle deinen Standort: </Text>
+          <DropDown
+            items={orte}
+            selected={selectedOrt}
+            setSelected={setSelectedOrt}
+            placeholder="Deutschland"
+          />
+        </div>
 
-      <div className="CityWrapper">
-        <Text scale="l">Wähle deinen Standort: </Text>
-        <DropDown
-          items={orte}
-          selected={selectedOrt}
-          setSelected={setSelectedOrt}
-          placeholder="Alle"
-        />
+        <div className="cityWrapper">
+          <Text scale="l">Wähle eine Kategorie: </Text>
+          <DropDown
+            items={cats}
+            selected={selectedCat}
+            setSelected={setSelectedCat}
+            placeholder="Alle"
+          />
+        </div>
       </div>
 
       <div className="categoryWrapper">
@@ -142,8 +199,10 @@ function App() {
           </Text>
           <Spacer />
           Bitte in der Email angeben: <br />
-          Organisations Name, Standort, Website, Kategorien (Spenden,
-          Hotlinedienst, Kinder- und Hygieneartikel...)
+          Organisations Name: <br /> Standort: <br />
+          Website: <br />
+          Kategorien (Spenden, Hotlinedienst, Kinder- und Hygieneartikel...):
+          <br />
         </Text>
       </Modal>
     </div>

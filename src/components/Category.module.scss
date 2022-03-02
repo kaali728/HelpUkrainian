@@ -10,8 +10,10 @@
     .tags {
       margin-top: 10px;
       display: flex;
+      flex-wrap: wrap;
       > div {
         margin: 5px 5px 5px 0px;
+        background-color: var(--primary95) !important;
       }
     }
   }

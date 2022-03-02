@@ -1,0 +1,31 @@
+.footer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  .contactUs {
+    display: flex;
+    color: var(--text200);
+  }
+
+  .spacer {
+    margin: 0px 10px;
+    color: var(--text300);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .footer {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    .contactUs {
+      flex-direction: column;
+    }
+
+    .spacer {
+      display: none;
+    }
+  }
+}

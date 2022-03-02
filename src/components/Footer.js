@@ -1,9 +1,10 @@
 import React from "react";
-import { Button } from "@findnlink/ui";
+import { Button, Text, Spacer } from "@findnlink/ui";
+import scss from "./Footer.module.scss";
 
 export default function Footer() {
   return (
-    <div>
+    <div className={scss.footer}>
       <Button primary>
         <a
           href="https://twitter.com/intent/tweet?text=Fl%C3%BCchtlinge%20sind%20laut%20unserem%20aktuellen%20Kenntnisstand%20auf%20der%20Suche%20nach%20Sicherheit%20und%20Frieden.%20Egal%2C%20ob%20du%20Sachspenden%2C%20Zeit%20oder%20aber%20auch%0Aein%20vorl%C3%A4ufiges%20Zuhause%20anbieten%20kannst%2C%20Deutschland%20hilft%20listet%20passende%20Ansprechpartner%3Ainnen%20auf.%20%0A%0Ahttps%3A%2F%2Fdehilft.de"
@@ -33,6 +34,27 @@ export default function Footer() {
           Auf Twitter teilen
         </a>
       </Button>
+      <Spacer />
+      <Text>
+        <div className={scss.contactUs}>
+          <a href="https://www.findnlink.com/de/legal?select=2" target="_blank">
+            Impressum
+          </a>
+          <span className={scss.spacer}> |</span> Kontaktiere uns:&nbsp;
+          <a href="mailto:contact@findnlink.com" target="_blank">
+            contact@findnlink.com
+          </a>
+        </div>
+      </Text>
+      <Spacer />
+      <Text>
+        Mit 💗 von{" "}
+        <a href="https://www.findnlink.com/de/aboutUs" target="_blank">
+          Findnlink
+        </a>{" "}
+        entwickelt.
+      </Text>
+      <Spacer />
     </div>
   );
 }
